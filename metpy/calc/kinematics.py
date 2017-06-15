@@ -432,3 +432,100 @@ def geostrophic_wind(heights, f, dx, dy):
     grad = _gradient(heights, *deltas)
     dy, dx = grad[-2:]  # Throw away unused gradient components
     return -norm_factor * dy, norm_factor * dx
+
+
+@exporter.export
+@check_units('[speed]', '[speed]', '[pressure]', '[length]', '[length]', '[length]', '[speed]', '[speed]')
+def SRH_calculator(u, v, p, srh_top, hgt, srh_bottom=0, storm_u=0*units('m/s'), storm_v=0*units('m/s'), dp=-1, exact=True):
+
+    r"""Calaulates SRH given a storm motion vector,
+    u and v wind components, heights and pressures,
+    and top and bottom of SRH layer. An optional storm
+    motion vector can be specified.
+
+    Parameters
+    ----------
+    srh_top : number
+        The height of the top of the desired layer for SRH.
+    srh_bottom : number
+        The height at the bottom of the SRH layer. Default is sfc.
+    hgts : array-like
+        The heights associatd with the data, provided in meters above mean
+        sea level and converted into meters AGL.
+    u : array-like
+        The u components of winds, same length as hgts
+    v : array-like
+        The u components of winds, same length as hgts
+    p : array-like
+        Pressure in hPa, same length as hgts
+    storm_u : number
+        u component of storm motion
+    storm_v : number
+        v component of storm motion
+    dp : negative integer
+        Pressure interval to interpolate the winds over.
+    exact: bool (optional, default = True)
+        switch between faster interpolated data and slower exact data
+
+    Returns
+    -------
+    number
+        p_srh : positive storm-relative helicity
+    number
+        n_srh : negative storm-relative helicity
+    number
+        T_srh : total storm-relative helicity
+    """
+    u = u.to('meters/second')
+    v = v.to('meters/second')
+    storm_u = storm_u.to('meters/second')
+    storm_v = storm_v.to('meters/second')
+
+    if hasattr(p, 'units'):
+        p = p.magnitude
+
+    if hasattr(u, 'units'):
+        u = u.magnitude
+
+    if hasattr(v, 'units'):
+        v = v.magnitude
+
+    if hasattr(storm_u, 'units'):
+        storm_u = storm_u.magnitude
+
+    if hasattr(storm_v, 'units'):
+        storm_v = storm_v.magnitude
+
+    p_srh_top = np.interp(srh_top, hgt-hgt[0], np.log(p))
+    p_srh_top = np.exp(p_srh_top)
+    if srh_bottom != 0:
+        p_srh_bottom = np.interp(srh_bottom, hgt-hgt[0], np.log(p))
+        p_srh_bottom = np.exp(p_srh_bottom)
+    else:
+        p_srh_bottom = p[0]
+
+    if exact:
+        ind1 = np.min(np.where(p_srh_bottom >= p)[0])
+        ind2 = np.max(np.where(p_srh_top <= p)[0])
+        u1 = log_interp(p_srh_bottom, p, u)
+        v1 = log_interp(p_srh_bottom, p, v)
+        u2 = log_interp(p_srh_top, p, u)
+        v2 = log_interp(p_srh_top, p, v)
+        u_int = np.concatenate([[u1], u[ind1:ind2+1], [u2]])
+        v_int = np.concatenate([[v1], v[ind1:ind2+1], [v2]])
+
+    else:
+        interp_levels = np.arange(p_srh_bottom, p_srh_top + dp, dp)
+        u_int = log_interp(interp_levels, p, u)
+        v_int = log_interp(interp_levels, p, v)
+
+    sru = (u_int - storm_u)
+    srv = (v_int - storm_v)
+
+    int_layers = (sru[1:] * srv[:-1] - sru[:-1] * srv[1:])
+
+    p_srh = int_layers[int_layers > 0.].sum() * units('m^2/s^2')
+    n_srh = int_layers[int_layers < 0.].sum() * units('m^2/s^2')
+    T_srh = p_srh + n_srh
+
+    return p_srh, n_srh, T_srh
