@@ -432,3 +432,84 @@ def geostrophic_wind(heights, f, dx, dy):
     grad = _gradient(heights, *deltas)
     dy, dx = grad[-2:]  # Throw away unused gradient components
     return -norm_factor * dy, norm_factor * dx
+
+
+def SRH_calculator(u, v, p, srh_top, hgts, srh_bottom=0, storm_u=0, storm_v=0, dp=-1, exact=True):
+    #Adapted in part from similar code in SharpPy
+    r"""Calaulates SRH given a storm motion vector,
+    hodograph, and top of SRH layer
+    Parameters
+    ----------
+    srh_top : number
+        The height of the top of the desired layer for SRH.
+    srh_bottom : number
+        The height at the bottom of the SRH layer. Default is sfc.
+    hgts : array-like
+        The heights associatd with the data.
+    u : array-like
+        The u components of winds, same length as hgts
+    v : array-like
+        The u components of winds, same length as hgts
+    p : array-like
+        Pressure in hPa, same length as hgts
+    storm_u : number
+        u component of storm motion
+    storm_v : number
+        v component of storm motion
+    dp : negative integer
+        Pressure interval to interpolate the winds over.
+    exact: bool (optional, default = True)
+        switch between faster interpolated data and slower exact data
+
+    Returns
+    -------
+    number
+        p_srh : positive storm-relative helicity
+    number
+        n_srh : negative storm-relative helicity
+    number
+        T_srh : total storm-relative helicity
+    """
+
+    if hasattr(p, 'units'):
+        p = p.magnitude
+
+    if hasattr(u, 'units'):
+        u = u.magnitude
+
+    if hasattr(v, 'units'):
+        v = v.magnitude
+
+    p_srh_top = np.interp(srh_top, hgt-hgt[0], np.log(p))
+    p_srh_top = np.exp(p_srh_top)
+    if srh_bottom != 0:
+        p_srh_bottom = np.interp(srh_bottom, hgt-hgt[0], np.log(p))
+        p_srh_bottom = np.exp(p_srh_bottom)
+    else:
+        p_srh_bottom = p[0]
+
+    if exact:
+        ind1 = np.min(np.where(p_srh_bottom >= p)[0])
+        ind2 = np.max(np.where(p_srh_top <= p)[0])
+        u1 = log_interp(p_srh_bottom, levc, u)
+        v1 = log_interp(p_srh_bottom, levc, v)
+        u2 = log_interp(p_srh_top, levc, u)
+        v2 = log_interp(p_srh_top, levc, v)
+        u_int = np.concatenate([[u1], u[ind1:ind2+1], [u2]])
+        v_int = np.concatenate([[v1], v[ind1:ind2+1], [v2]])
+
+    else:
+        interp_levels = np.arange(p_srh_bottom, p_srh_top + dp, dp)
+        u_int = log_interp(interp_levels, levc, u)
+        v_int = log_interp(interp_levels, levc, v)
+
+    sru = .514444 * (u_int - storm_u)
+    srv = .514444 * (v_int - storm_v)
+
+    int_layers = (sru[1:] * srv[:-1] - sru[:-1] * srv[1:])
+
+    p_srh = int_layers[int_layers > 0.].sum()
+    n_srh = int_layers[int_layers < 0.].sum()
+    T_srh = p_srh + n_srh
+
+    return p_srh, n_srh, T_srh
