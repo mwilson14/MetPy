@@ -439,8 +439,8 @@ def geostrophic_wind(heights, f, dx, dy):
 @check_units('[speed]', '[speed]', '[pressure]', '[length]',
              '[length]', '[length]', '[speed]', '[speed]')
 def storm_relative_helicity(u, v, p, srh_top, hgt, srh_bottom=0, storm_u=0 * units('m/s'),
+
                             storm_v=0 * units('m/s'), dp=-1, exact=True):
-                            
     r"""Calculate Storm Relative Helicity.
 
     Needs u and v wind components, heights and pressures,
