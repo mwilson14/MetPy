@@ -387,7 +387,7 @@ def test_helicity():
     # negative SRH will be zero.
     srh_true_t = srh_true_p
     srh_true_n = 0 * units('m^2/s^2')
-    p_srh, n_srh, T_srh = storm_relative_helicity(u_int, v_int,pres_int, 2000, hgt_int,
+    p_srh, n_srh, T_srh = storm_relative_helicity(u_int, v_int, pres_int, 2000, hgt_int,
                                                   srh_bottom=0, storm_u=0 * units.knot,
                                                   storm_v=0 * units.knot,
                                                   dp=-1, exact=False)
