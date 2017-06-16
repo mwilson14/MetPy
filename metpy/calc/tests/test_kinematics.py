@@ -6,8 +6,9 @@
 import numpy as np
 import pytest
 
-from metpy.calc import (advection, convergence_vorticity, geostrophic_wind, h_convergence,
-                        shearing_deformation, shearing_stretching_deformation,
+from metpy.calc import (advection, convergence_vorticity, geostrophic_wind,
+                        get_wind_components, h_convergence, shearing_deformation,
+                        shearing_stretching_deformation,
                         storm_relative_helicity, stretching_deformation,
                         total_deformation, v_vorticity)
 from metpy.constants import g, omega, Re
@@ -375,6 +376,7 @@ def test_helicity():
     dir_int = np.arange(180, 272.25, 2.25)
     spd_int = np.zeros((hgt_int.shape[0]))
     spd_int[:] = 2.
+    u_int, v_int = get_wind_components(spd_int * units('m/s'), dir_int * units.degree)
     #Interpolate pressure to that graph
     pres_int = np.interp(hgt_int, hgt_test, np.log(pres_test))
     pres_int = np.exp(pres_int)
@@ -385,11 +387,11 @@ def test_helicity():
     #negative SRH will be zero.
     SRH_true_t = SRH_true_p
     SRH_true_n = 0 * units('m^2/s^2')
-    p_srh, n_srh, T_srh = SRH_calculator(u_int, v_int, pres_int, 2000, hgt_int,
-                                         srh_bottom = 0,
-                                         storm_u = 0 * units.knot,
-                                         storm_v = 0 * units.knot,
-                                         dp =-1, exact = False)
+    p_srh, n_srh, T_srh = storm_relative_helicity(u_int, v_int, pres_int, 2000, hgt_int,
+                                                  srh_bottom = 0,
+                                                  storm_u = 0 * units.knot,
+                                                  storm_v = 0 * units.knot,
+                                                  dp =-1, exact = False)
     assert_almost_equal(p_srh, SRH_true_p,2)
     assert_almost_equal(n_srh, SRH_true_n,2)
     assert_almost_equal(T_srh, SRH_true_t,2)
