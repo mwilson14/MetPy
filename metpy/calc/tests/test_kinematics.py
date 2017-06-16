@@ -363,3 +363,32 @@ def test_geostrophic_gempak():
                        [-8.66612, -5.27816, -1.45282]])
     assert_almost_equal(ug[1, 1], true_u[1, 1] * units('m/s'), 2)
     assert_almost_equal(vg[1, 1], true_v[1, 1] * units('m/s'), 2)
+
+
+def test_SRH():
+    """Test function for SRH calculations on a quarter-circle hodograph
+       with a constant 2 m/s wind speed"""
+    pres_test = np.asarray([1013.25, 954.57955706, 898.690770743, 845.481604002, 794.85264282])
+    #Create larger arrays for everything except pressure to make a smoother graph
+    hgt_int = np.arange(0,2050,50)
+    dir_int = np.arange(180, 272.25, 2.25)
+    spd_int = np.zeros((hgt_int.shape[0]))
+    spd_int[:] = 2.
+    #Interpolate pressure to that graph
+    pres_int = np.interp(hgt_int, hgt_test, np.log(pres_test))
+    pres_int = np.exp(pres_int)
+    #Put in the correct value of SRH for a quarter-circle, 2 m/s hodograph
+    #(SRH = 2 * area under hodo, in this case...)
+    SRH_true_p = 2 * (.25 * np.pi * (2 ** 2)) * units('m^2/s^2')
+    #Since there's only positive SRH in this case, total SRH will be equal to positive SRH and
+    #negative SRH will be zero.
+    SRH_true_t = SRH_true_p
+    SRH_true_n = 0 * units('m^2/s^2')
+    p_srh, n_srh, T_srh = SRH_calculator(u_int, v_int, pres_int, 2000, hgt_int,
+                                         srh_bottom = 0,
+                                         storm_u = 0 * units.knot,
+                                         storm_v = 0 * units.knot,
+                                         dp =-1, exact = False)
+    assert_almost_equal(p_srh, SRH_true_p,2)
+    assert_almost_equal(n_srh, SRH_true_n,2)
+    assert_almost_equal(T_srh, SRH_true_t,2)
