@@ -439,7 +439,9 @@ def geostrophic_wind(heights, f, dx, dy):
 def SRH_calculator(u, v, p, srh_top, hgt, srh_bottom=0, storm_u=0*units('m/s'), storm_v=0*units('m/s'), dp=-1, exact=True):
 
     r"""Calaulates SRH given a storm motion vector,
-    hodograph, and top and bottom of SRH layer
+    u and v wind components, heights and pressures,
+    and top and bottom of SRH layer. An optional storm
+    motion vector can be specified.
 
     Parameters
     ----------
@@ -448,7 +450,8 @@ def SRH_calculator(u, v, p, srh_top, hgt, srh_bottom=0, storm_u=0*units('m/s'), 
     srh_bottom : number
         The height at the bottom of the SRH layer. Default is sfc.
     hgts : array-like
-        The heights associatd with the data.
+        The heights associatd with the data, provided in meters above mean
+        sea level and converted into meters AGL.
     u : array-like
         The u components of winds, same length as hgts
     v : array-like
