@@ -370,16 +370,18 @@ def test_geostrophic_gempak():
 def test_helicity():
     """Test function for SRH calculations on a quarter-circle hodograph."""
     pres_test = np.asarray([1013.25, 954.57955706, 898.690770743, 845.481604002, 794.85264282])
+    pres_test = pres_test
     hgt_test = hgt_test = np.asarray([0, 500, 1000, 1500, 2000])
     # Create larger arrays for everything except pressure to make a smoother graph
     hgt_int = np.arange(0, 2050, 50)
+    hgt_int = hgt_int * units('meter')
     dir_int = np.arange(180, 272.25, 2.25)
     spd_int = np.zeros((hgt_int.shape[0]))
     spd_int[:] = 2.
     u_int, v_int = get_wind_components(spd_int * units('m/s'), dir_int * units.degree)
     # Interpolate pressure to that graph
     pres_int = np.interp(hgt_int, hgt_test, np.log(pres_test))
-    pres_int = np.exp(pres_int)
+    pres_int = np.exp(pres_int) * units('millibar')
     # Put in the correct value of SRH for a quarter-circle, 2 m/s hodograph
     # (SRH = 2 * area under hodo, in this case...)
     srh_true_p = 2 * (.25 * np.pi * (2 ** 2)) * units('m^2/s^2')
