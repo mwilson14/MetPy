@@ -373,9 +373,9 @@ def test_helicity():
     pres_test = pres_test
     hgt_test = hgt_test = np.asarray([0, 500, 1000, 1500, 2000])
     # Create larger arrays for everything except pressure to make a smoother graph
-    hgt_int = np.arange(0, 2100, 50)
+    hgt_int = np.arange(0, 2050, 50)
     hgt_int = hgt_int * units('meter')
-    dir_int = np.arange(180, 272.5, 2.25)
+    dir_int = np.arange(180, 272.25, 2.25)
     spd_int = np.zeros((hgt_int.shape[0]))
     spd_int[:] = 2.
     u_int, v_int = get_wind_components(spd_int * units('m/s'), dir_int * units.degree)
