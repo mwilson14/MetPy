@@ -8,7 +8,8 @@ import pytest
 
 from metpy.calc import (advection, convergence_vorticity, geostrophic_wind, h_convergence,
                         shearing_deformation, shearing_stretching_deformation,
-                        stretching_deformation, total_deformation, v_vorticity)
+                        storm_relative_helicity, stretching_deformation,
+                        total_deformation, v_vorticity)
 from metpy.constants import g, omega, Re
 from metpy.testing import assert_almost_equal, assert_array_equal
 from metpy.units import concatenate, units
@@ -365,7 +366,7 @@ def test_geostrophic_gempak():
     assert_almost_equal(vg[1, 1], true_v[1, 1] * units('m/s'), 2)
 
 
-def test_SRH():
+def test_helicity():
     """Test function for SRH calculations on a quarter-circle hodograph
        with a constant 2 m/s wind speed"""
     pres_test = np.asarray([1013.25, 954.57955706, 898.690770743, 845.481604002, 794.85264282])
