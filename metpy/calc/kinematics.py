@@ -500,6 +500,12 @@ def storm_relative_helicity(u, v, p, srh_top, hgt, srh_bottom=0, storm_u=0 * uni
     if hasattr(storm_v, 'units'):
         storm_v = storm_v.magnitude
 
+    if hasattr(srh_top, 'units'):
+        srh_top = srh_top.magnitude
+
+    if hasattr(srh_bottom, 'units'):
+        srh_bottom = srh_bottom.magnitude
+
     p_srh_top = np.interp(srh_top, hgt - hgt[0], np.log(p))
     p_srh_top = np.exp(p_srh_top)
     if srh_bottom != 0:
