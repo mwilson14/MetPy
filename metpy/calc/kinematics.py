@@ -9,7 +9,7 @@ import warnings
 
 import numpy as np
 
-from calc import log_interp
+from ..calc import log_interp
 from ..cbook import is_string_like, iterable
 from ..constants import g
 from ..package_tools import Exporter
