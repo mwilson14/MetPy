@@ -13,7 +13,8 @@
 
 SRH_testingnotebook.ipynb
 Untitled.ipynb
-metpy/Notebooks
+Notebooks/
+Sounding_Retriever_Update.ipynb
 
 dist/*
 build/*
