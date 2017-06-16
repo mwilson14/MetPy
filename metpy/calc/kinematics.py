@@ -9,7 +9,7 @@ import warnings
 
 import numpy as np
 
-from ..calc.tools import log_interp
+from ..calc import log_interp
 from ..cbook import is_string_like, iterable
 from ..constants import g
 from ..package_tools import Exporter
@@ -438,10 +438,9 @@ def geostrophic_wind(heights, f, dx, dy):
 @exporter.export
 @check_units('[speed]', '[speed]', '[pressure]', '[length]',
              '[length]', '[length]', '[speed]', '[speed]')
-def SRH_calculator(u, v, p, srh_top, hgt, srh_bottom=0, storm_u=0*units('m/s'),
+def storm_relative_helicity(u, v, p, srh_top, hgt, srh_bottom=0, storm_u=0*units('m/s'),
                    storm_v=0*units('m/s'), dp=-1, exact=True):
-
-    r"""Calaulates Storm Relative Helicity.
+    r"""Calculates Storm Relative Helicity.
 
     Needs u and v wind components, heights and pressures,
     and top and bottom of SRH layer. An optional storm
@@ -500,10 +499,10 @@ def SRH_calculator(u, v, p, srh_top, hgt, srh_bottom=0, storm_u=0*units('m/s'),
     if hasattr(storm_v, 'units'):
         storm_v = storm_v.magnitude
 
-    p_srh_top = np.interp(srh_top, hgt-hgt[0], np.log(p))
+    p_srh_top = np.interp(srh_top, hgt - hgt[0], np.log(p))
     p_srh_top = np.exp(p_srh_top)
     if srh_bottom != 0:
-        p_srh_bottom = np.interp(srh_bottom, hgt-hgt[0], np.log(p))
+        p_srh_bottom = np.interp(srh_bottom, hgt - hgt[0], np.log(p))
         p_srh_bottom = np.exp(p_srh_bottom)
     else:
         p_srh_bottom = p[0]
@@ -515,8 +514,8 @@ def SRH_calculator(u, v, p, srh_top, hgt, srh_bottom=0, storm_u=0*units('m/s'),
         v1 = log_interp(p_srh_bottom, p, v)
         u2 = log_interp(p_srh_top, p, u)
         v2 = log_interp(p_srh_top, p, v)
-        u_int = np.concatenate([[u1], u[ind1:ind2+1], [u2]])
-        v_int = np.concatenate([[v1], v[ind1:ind2+1], [v2]])
+        u_int = np.concatenate([[u1], u[ind1:ind2 + 1], [u2]])
+        v_int = np.concatenate([[v1], v[ind1:ind2 + 1], [v2]])
 
     else:
         interp_levels = np.arange(p_srh_bottom, p_srh_top + dp, dp)
@@ -530,6 +529,6 @@ def SRH_calculator(u, v, p, srh_top, hgt, srh_bottom=0, storm_u=0*units('m/s'),
 
     p_srh = int_layers[int_layers > 0.].sum() * units('m^2/s^2')
     n_srh = int_layers[int_layers < 0.].sum() * units('m^2/s^2')
-    T_srh = p_srh + n_srh
+    t_srh = p_srh + n_srh
 
-    return p_srh, n_srh, T_srh
+    return p_srh, n_srh, t_srh

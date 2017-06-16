@@ -11,6 +11,10 @@
 
 .ipynb_checkpoints/
 
+SRH_testingnotebook.ipynb
+Untitled.ipynb
+metpy/Notebooks
+
 dist/*
 build/*
 *.egg-info
