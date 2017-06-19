@@ -444,7 +444,8 @@ def storm_relative_helicity(u, v, p, srh_top, hgt, srh_bottom=0, storm_u=0 * uni
 
     Needs u and v wind components, heights and pressures,
     and top and bottom of SRH layer. An optional storm
-    motion vector can be specified.
+    motion vector can be specified. Partially adapted from
+    similar SharpPy code.
 
     Parameters
     ----------
