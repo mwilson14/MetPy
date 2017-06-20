@@ -11,10 +11,6 @@
 
 .ipynb_checkpoints/
 
-SRH_testingnotebook.ipynb
-Untitled.ipynb
-Notebooks/
-Sounding_Retriever_Update.ipynb
 
 dist/*
 build/*
