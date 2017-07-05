@@ -481,6 +481,7 @@ def storm_relative_helicity(u, v, p, hgt, top, bottom=0 * units('meter'),
                             storm_u=0 * units('m/s'), storm_v=0 * units('m/s')):
     # Partially adapted from similar SharpPy code
     r"""Calculate Storm Relative Helicity.
+
     Needs u and v wind components, heights and pressures,
     and top and bottom of SRH layer. An optional storm
     motion vector can be specified. SRH is calculated using the
@@ -521,6 +522,7 @@ def storm_relative_helicity(u, v, p, hgt, top, bottom=0 * units('meter'),
     number
         t_srh : total storm-relative helicity
     """
+    
     u = u.to('meters/second')
     v = v.to('meters/second')
     storm_u = storm_u.to('meters/second')
