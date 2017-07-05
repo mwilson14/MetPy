@@ -521,8 +521,8 @@ def storm_relative_helicity(u, v, p, hgt, top, bottom=0 * units('meter'),
         n_srh : negative storm-relative helicity
     number
         t_srh : total storm-relative helicity
+
     """
-    
     u = u.to('meters/second')
     v = v.to('meters/second')
     storm_u = storm_u.to('meters/second')
